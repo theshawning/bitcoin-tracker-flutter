@@ -34,15 +34,19 @@ const List<String> cryptoList = [
 ];
 
 class CoinData {
-  getCoinData() async {
-    http.Response response = await http
-        .get('https://rest.coinapi.io/v1/exchangerate/BTC/USD?apiKey=$apiKey');
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      var rate = data['rate'];
-      return rate;
-    } else {
-      print(response.statusCode);
+  Future getCoinData(cur) async {
+    Map<String, String> cryptoPrices = {};
+    for (String crypto in cryptoList) {
+      http.Response response = await http.get(
+          'https://rest.coinapi.io/v1/exchangerate/$crypto/$cur?apiKey=$apiKey');
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        double rate = data['rate'];
+        cryptoPrices[crypto] = rate.toStringAsFixed(0);
+      } else {
+        print(response.statusCode);
+      }
     }
+    return cryptoPrices;
   }
 }
